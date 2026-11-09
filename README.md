@@ -76,12 +76,16 @@ Additional tools:
 - `CompetentWithSlips` — a programmatic action generator with an exactly known
   proposal law and exact `capability` (probability of proposing a good edit);
 - `env.guaranteed_descent / guaranteed_plateau / guaranteed_junk` — a random edit
-  with the requested effect on ψ, for scripted generators.
+  with the requested effect on ψ, for scripted generators. Descent and plateau
+  edits that move the state toward the hidden reference solution are preferred
+  when they exist, so these queries use knowledge of the solution that a language
+  model does not have; they are **not** the blind descent (use
+  `graphmend.analysis` for that).
 
 ## Reproducing the published structural data
 
 ```bash
-python scripts/enumerate_structure.py   # 2400 instances, ~2 min on 10 cores -> data/structure.json
+python scripts/enumerate_structure.py   # 2400 instances, ~2 min on 10 cores of an Apple M2 Pro -> data/structure.json
 python scripts/summarize.py             # summary table
 python scripts/figures.py figures       # figures (add --lang ru for Russian labels)
 pytest                                  # includes an exact check against data/structure.json
