@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use GraphMend, please cite it as below."
+title: "GraphMend: a test bed with an exactly computable residual for checking agent control loops"
+type: software
+version: 1.0.0
+date-released: "2026-11-09"
+license: MIT
+repository-code: "https://github.com/markpolyak/graphmend"
+authors:
+  - family-names: Polyak
+    given-names: Mark
+    orcid: "https://orcid.org/0000-0002-8754-4865"
+keywords:
+  - agents
+  - language models
+  - test bed
+  - local search
+  - exhaustive enumeration

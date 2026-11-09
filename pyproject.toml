@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graphmend"
+version = "1.0.0"
+description = "GraphMend: a test bed with an exactly computable residual for checking agent control loops"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Mark Polyak" }]
+keywords = ["agents", "language models", "test bed", "local search", "exhaustive enumeration"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+# The package itself is stdlib-only.
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+figures = ["matplotlib>=3.7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
