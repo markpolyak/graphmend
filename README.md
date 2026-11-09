@@ -94,7 +94,7 @@ Standard grid: depths 2, 4, 8, 12 (n_perturb = 2, 3, 6, 10); coupling 0.0, 0.4,
 
 ## Citation
 
-See `CITATION.cff`. A DOI for this software is assigned by Zenodo on release.
+See `CITATION.cff`. [![DOI](https://zenodo.org/badge/1451433924.svg)](https://doi.org/10.5281/zenodo.24085091)
 
 ## License
 
