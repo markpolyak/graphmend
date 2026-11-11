@@ -5,7 +5,8 @@ its vertices are the states reachable from s0 by edits that strictly decrease ps
 ("improving" edits), its arcs are those edits. R is the set of its states with
 psi > 0. Definitions:
 
-  dead      a state with no improving edit;
+  dead      a state of R with no improving edit (a goal state, psi == 0, has none
+            either but is not in R and is not called dead);
   viable    a state of R from which psi == 0 is reachable by improving edits;
   trap      a state of R that is not viable (every dead state is a trap);
   blind     the blind descent: from every state, take an improving edit chosen
@@ -14,8 +15,10 @@ psi > 0. Definitions:
   plateau   an edit that keeps psi; ``esc`` is the share of dead states from which
             one plateau edit leads to a state with an improving edit.
 
-``analyse`` returns these quantities for one environment; ``scripts/enumerate.py``
-runs it over the standard grid of instances.
+``analyse`` returns these quantities for one environment; ``scripts/enumerate_structure.py``
+runs it over the standard grid of instances. ``plateau_reachability`` (since 1.1.0)
+asks whether a bounded number of plateau edits, taken in dead states, makes the goal
+reachable; ``scripts/enumerate_plateau.py`` runs it over the same grid.
 """
 
 from __future__ import annotations
@@ -150,3 +153,69 @@ def analyse(env: ConstraintRepairEnv, cap: int | None = 300_000) -> dict:
         "viable0": viable[s0], "trap": sum(not viable[k] for k in kids) / len(kids),
         "esc": esc / len(dead) if dead else None, "walk": stuck[s0], "capped": capped,
     }
+
+
+def plateau_reachability(env: ConstraintRepairEnv, kmax: int = 2) -> dict:
+    """Reachability of the goal when plateau edits are allowed in dead states.
+
+    From the current state of ``env`` as s0. Keys:
+      ``solv``  list of length ``kmax + 1``: ``solv[k]`` is True if psi == 0 is
+                reachable from s0 by improving edits and at most ``k`` plateau edits
+                (edits that keep psi), a plateau edit being taken only in a dead
+                state; ``solv[0]`` is the viability of s0;
+      ``R``, ``dead``  |R| and the number of dead states in R (as in ``analyse``);
+      ``esc_viable``   share of dead states of R that have a plateau edit into a
+                viable state (one from which the goal is reachable by improving
+                edits alone), or None if R has no dead state.
+    The state of ``env`` is restored to s0 on return.
+    """
+    s0 = state_key(env)
+    p0 = env.psi()
+    memo: dict[tuple[Hashable, int], bool] = {}
+    nbr: dict[Hashable, tuple[list, list]] = {}
+
+    def neighbours(key: Hashable) -> tuple[list, list]:
+        # improving and plateau successors of a state, with their change of psi
+        if key not in nbr:
+            set_state(env, key)  # type: ignore[arg-type]
+            imp, pla = [], []
+            for ed in list(env._candidate_edits()):
+                d = env._delta_psi(ed)
+                if d <= 0:
+                    env._apply_edit(ed)
+                    kk = state_key(env)
+                    env._undo_edit(ed)
+                    (imp if d < 0 else pla).append((kk, d))
+            nbr[key] = (imp, pla)
+        return nbr[key]
+
+    def reach(key: Hashable, p: int, k: int) -> bool:
+        if p == 0:
+            return True
+        m = memo.get((key, k))
+        if m is not None:
+            return m
+        if k > 0 and memo.get((key, k - 1)):
+            return True
+        imp, pla = neighbours(key)
+        if imp:
+            r = any(reach(kk, p + d, k) for kk, d in imp)
+        else:
+            r = k > 0 and any(reach(kk, p, k - 1) for kk, _ in pla)
+        memo[(key, k)] = r
+        return r
+
+    import sys
+    limit = sys.getrecursionlimit()
+    sys.setrecursionlimit(max(limit, 10_000))
+    try:
+        solv = [reach(s0, p0, k) for k in range(kmax + 1)]
+        set_state(env, s0)
+        kids, psi, _, _ = descent_graph(env, None)
+        dead = [k for k, ch in kids.items() if not ch]
+        esc = sum(any(reach(kk, psi[k], 0) for kk, _ in neighbours(k)[1]) for k in dead)
+    finally:
+        sys.setrecursionlimit(limit)
+        set_state(env, s0)
+    return {"solv": solv, "R": len(kids), "dead": len(dead),
+            "esc_viable": esc / len(dead) if dead else None}

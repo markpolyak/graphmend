@@ -67,7 +67,10 @@ A state of R is *viable* if ψ = 0 is reachable from it by improving edits and a
   chosen improving edit at every step — gets stuck before ψ = 0 (exact dynamic
   programming over the acyclic graph);
 - the share of dead states from which one *plateau* edit (keeping ψ) leads to a
-  state with an improving edit.
+  state with an improving edit;
+- (since 1.1.0, `plateau_reachability`) whether ψ = 0 is reachable when at most k
+  plateau edits are allowed, each taken in a dead state, and the share of dead
+  states with a plateau edit into a viable state.
 
 Additional tools:
 
@@ -86,6 +89,7 @@ Additional tools:
 
 ```bash
 python scripts/enumerate_structure.py   # 2400 instances, ~2 min on 10 cores of an Apple M2 Pro -> data/structure.json
+python scripts/enumerate_plateau.py     # plateau edits in dead states, ~10 min on 10 cores -> data/plateau.json
 python scripts/summarize.py             # summary table
 python scripts/figures.py figures       # figures (add --lang ru for Russian labels)
 pytest                                  # includes an exact check against data/structure.json
@@ -94,7 +98,7 @@ pytest                                  # includes an exact check against data/s
 Standard grid: depths 2, 4, 8, 12 (n_perturb = 2, 3, 6, 10); coupling 0.0, 0.4,
 0.8; 200 instances per cell. The instance for (depth d, coupling c, index i) is
 `generate_instance_at_depth(7_000_000 + 100_000*d + 10_000*round(10*c) + i, d, ...)`.
-`data/structure.json` holds one record per instance.
+`data/structure.json` and `data/plateau.json` hold one record per instance.
 
 ## Citation
 
