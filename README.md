@@ -90,6 +90,7 @@ Additional tools:
 ```bash
 python scripts/enumerate_structure.py   # 2400 instances, ~2 min on 10 cores of an Apple M2 Pro -> data/structure.json
 python scripts/enumerate_plateau.py     # plateau edits in dead states, ~10 min on 10 cores -> data/plateau.json
+python scripts/enumerate_scaling.py     # n = 6..16 nodes, memory-guarded (2 processes, 3 GB each), ~40 min -> data/scaling.json
 python scripts/summarize.py             # summary table
 python scripts/figures.py figures       # figures (add --lang ru for Russian labels)
 pytest                                  # includes an exact check against data/structure.json
@@ -98,7 +99,12 @@ pytest                                  # includes an exact check against data/s
 Standard grid: depths 2, 4, 8, 12 (n_perturb = 2, 3, 6, 10); coupling 0.0, 0.4,
 0.8; 200 instances per cell. The instance for (depth d, coupling c, index i) is
 `generate_instance_at_depth(7_000_000 + 100_000*d + 10_000*round(10*c) + i, d, ...)`.
-`data/structure.json` and `data/plateau.json` hold one record per instance.
+`data/structure.json`, `data/plateau.json` and `data/scaling.json` hold one record per instance.
+
+**Memory.** On 8 nodes the largest instance of the grid needs about 1.7 GB; on 12-16 nodes
+at depth 12 a single instance can need more than 3 GB, so do not run many large instances in
+parallel on a laptop. `scripts/enumerate_scaling.py` limits both the number of processes and
+the memory of each.
 
 ## Citation
 

@@ -21,7 +21,7 @@ STANDARD = {"n_nodes": 8, "n_labels": 3, "n_constraints": 26}
 # n_perturb used to reach each standard depth.
 N_PERTURB = {2: 2, 4: 3, 8: 6, 12: 10}
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 __all__ = [
     "Action", "CompetentWithSlips", "ConstraintRepairEnv", "ConstraintRepairMacroVar",
